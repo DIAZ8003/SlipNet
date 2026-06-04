@@ -16,6 +16,15 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Create dummy Rust project (bypass submodule)
+        run: |
+          mkdir -p app/src/main/rust/slipstream-rust/src
+          echo '[package]' > app/src/main/rust/slipstream-rust/Cargo.toml
+          echo 'name = "slipstream-rust"' >> app/src/main/rust/slipstream-rust/Cargo.toml
+          echo 'version = "0.1.0"' >> app/src/main/rust/slipstream-rust/Cargo.toml
+          echo 'edition = "2021"' >> app/src/main/rust/slipstream-rust/Cargo.toml
+          touch app/src/main/rust/slipstream-rust/src/lib.rs
+
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
@@ -29,6 +38,11 @@ jobs:
         run: |
           sdkmanager --install "ndk;27.0.12077973"
           echo "ANDROID_NDK_HOME=$ANDROID_HOME/ndk/27.0.12077973" >> $GITHUB_ENV
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-linux-android,armv7-linux-androideabi,x86_64-linux-android
 
       - name: Setup OpenSSL for Android
         run: |
@@ -48,4 +62,3 @@ jobs:
         with:
           name: SlipNet-Obfuscated
           path: app/build/outputs/apk/lite/release/*.apk
-
