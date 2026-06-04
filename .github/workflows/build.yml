@@ -5,6 +5,9 @@ on:
     branches: [main]
   workflow_dispatch:
 
+env:
+  OPENSSL_VERSION: "3.0.15"
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -21,6 +24,19 @@ jobs:
 
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
+
+      - name: Install Android NDK
+        run: |
+          sdkmanager --install "ndk;27.0.12077973"
+          echo "ANDROID_NDK_HOME=$ANDROID_HOME/ndk/27.0.12077973" >> $GITHUB_ENV
+
+      - name: Setup OpenSSL for Android
+        run: |
+          chmod +x app/scripts/build-openssl-android.sh
+          OUTPUT_DIR=$HOME/android-openssl/android-ssl \
+          OPENSSL_VERSION=${{ env.OPENSSL_VERSION }} \
+          NDK_VERSION=27.0.12077973 \
+          ./app/scripts/build-openssl-android.sh
 
       - name: Build Full Release APK
         run: |
