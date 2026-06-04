@@ -16,6 +16,9 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Create golibs-lite.aar from golibs.aar
+        run: cp app/libs/golibs.aar app/libs/golibs-lite.aar
+
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
