@@ -6,7 +6,7 @@ import java.util.Properties
 
 plugins {
     id("com.android.application")
-    id("org.mozilla.rust-android-gradle.rust-android")
+//     id("org.mozilla.rust-android-gradle.rust-android")
     kotlin("android")
     id("com.google.devtools.ksp")
     id("org.jetbrains.kotlin.plugin.compose")
@@ -16,11 +16,11 @@ plugins {
 val minSdkVersion = 24
 val appVersionName = "2.5.5"
 val appVersionCode = 80
-val cargoProfile = (findProperty("CARGO_PROFILE") as String?) ?: run {
-    val isRelease = gradle.startParameter.taskNames.any { it.contains("Release", ignoreCase = true) }
-    if (isRelease) "release" else "debug"
-}
-
+// val cargoProfile = (findProperty("CARGO_PROFILE") as String?) ?: run {
+//     val isRelease = gradle.startParameter.taskNames.any { it.contains("Release", ignoreCase = true) }
+//     if (isRelease) "release" else "debug"
+// }
+// 
 fun abiFromTarget(target: String): String = when {
     target.startsWith("aarch64") -> "arm64-v8a"
     target.startsWith("armv7") || target.startsWith("arm") -> "armeabi-v7a"
@@ -161,8 +161,8 @@ kotlin {
     }
 }
 
-val cargoHome = System.getenv("HOME") + "/.cargo"
-val cargoBin = "$cargoHome/bin"
+// val cargoHome = System.getenv("HOME") + "/.cargo"
+// val cargoBin = "$cargoHome/bin"
 
 // Task to setup OpenSSL for Android
 tasks.register("setupOpenSsl") {
@@ -304,104 +304,104 @@ tasks.register("verifyOpenSsl") {
     }
 }
 
-cargo {
-    cargoCommand = "$cargoBin/cargo"
-    rustcCommand = "$cargoBin/rustc"
-    module = "src/main/rust/slipstream-rust"
-    libname = "slipstream"
-    targets = listOf("arm", "arm64", "x86_64")
-    profile = cargoProfile
-    rustupChannel = "stable"
-    extraCargoBuildArguments = listOf(
-        "-p", "slipstream-client",
-        "--lib",  // Only build the library, not the binary (avoids overwriting cdylib with executable)
-        "--features", "openssl-static,picoquic-minimal-build",
-    )
-    exec = { spec, toolchain ->
-        // Add cargo to PATH
-        val currentPath = System.getenv("PATH") ?: ""
-        spec.environment("PATH", "$cargoHome/bin:$currentPath")
-        // Try python3 first, fall back to python
-        // The rust-android-gradle plugin will handle errors if python is not available
-        spec.environment("RUST_ANDROID_GRADLE_PYTHON_COMMAND", "python3")
-        spec.environment(
-            "RUST_ANDROID_GRADLE_CC_LINK_ARG",
-            "-Wl,-z,max-page-size=16384,-soname,lib$libname.so"
-        )
-        spec.environment(
-            "RUST_ANDROID_GRADLE_LINKER_WRAPPER_PY",
-            "$projectDir/src/main/rust/linker-wrapper.py"
-        )
-        spec.environment(
-            "RUST_ANDROID_GRADLE_TARGET",
-            "target/${toolchain.target}/$cargoProfile/lib$libname.so"
-        )
-        val abi = abiFromTarget(toolchain.target)
-        spec.environment("ANDROID_NDK_HOME", android.ndkDirectory.absolutePath)
-        spec.environment("ANDROID_ABI", abi)
-        spec.environment("ANDROID_PLATFORM", "android-$minSdkVersion")
-        spec.environment(
-            "PICOQUIC_BUILD_DIR",
-            "$projectDir/src/main/rust/slipstream-rust/.picoquic-build/$abi"
-        )
-        spec.environment("PICOQUIC_AUTO_BUILD", "1")
-        spec.environment("BUILD_TYPE", if (cargoProfile == "release") "Release" else "Debug")
-
-        // Add OpenSSL paths for picoquic build and openssl-sys
-        val opensslAbiDir = opensslBaseDir.resolve(abi)
-        spec.environment("OPENSSL_DIR", opensslAbiDir.absolutePath)
-        spec.environment("OPENSSL_LIB_DIR", opensslAbiDir.resolve("lib").absolutePath)
-        spec.environment("OPENSSL_INCLUDE_DIR", opensslAbiDir.resolve("include").absolutePath)
-        // For picoquic build script
-        spec.environment("OPENSSL_ROOT_DIR", opensslAbiDir.absolutePath)
-        spec.environment("OPENSSL_CRYPTO_LIBRARY", opensslAbiDir.resolve("lib/libcrypto.a").absolutePath)
-        spec.environment("OPENSSL_SSL_LIBRARY", opensslAbiDir.resolve("lib/libssl.a").absolutePath)
-        spec.environment("OPENSSL_USE_STATIC_LIBS", "1")
-
-        // Pass config encryption key to Rust build.rs for obfuscation
-        spec.environment("CONFIG_ENCRYPTION_KEY", configEncryptionKey)
-
-        // Remap the build-machine home directory out of Rust panic strings.
-        // CARGO_ENCODED_RUSTFLAGS is appended to rustflags in .cargo/config.toml
-        // so the link-arg flags there are preserved.
-        val homeDir = System.getProperty("user.home")
-        spec.environment("CARGO_ENCODED_RUSTFLAGS", "--remap-path-prefix=${homeDir}=~")
-
-        val toolchainPrebuilt = android.ndkDirectory
-            .resolve("toolchains/llvm/prebuilt")
-            .listFiles()
-            ?.firstOrNull { it.isDirectory }
-        val toolchainBin = toolchainPrebuilt?.resolve("bin")
-        if (toolchainBin != null) {
-            spec.environment("AR", toolchainBin.resolve("llvm-ar").absolutePath)
-            spec.environment("RANLIB", toolchainBin.resolve("llvm-ranlib").absolutePath)
-        }
-    }
-}
-
+// cargo {
+//     cargoCommand = "$cargoBin/cargo"
+//     rustcCommand = "$cargoBin/rustc"
+//     module = "src/main/rust/slipstream-rust"
+//     libname = "slipstream"
+//     targets = listOf("arm", "arm64", "x86_64")
+//     profile = cargoProfile
+//     rustupChannel = "stable"
+//     extraCargoBuildArguments = listOf(
+//         "-p", "slipstream-client",
+//         "--lib",  // Only build the library, not the binary (avoids overwriting cdylib with executable)
+//         "--features", "openssl-static,picoquic-minimal-build",
+//     )
+//     exec = { spec, toolchain ->
+//         // Add cargo to PATH
+//         val currentPath = System.getenv("PATH") ?: ""
+//         spec.environment("PATH", "$cargoHome/bin:$currentPath")
+//         // Try python3 first, fall back to python
+//         // The rust-android-gradle plugin will handle errors if python is not available
+//         spec.environment("RUST_ANDROID_GRADLE_PYTHON_COMMAND", "python3")
+//         spec.environment(
+//             "RUST_ANDROID_GRADLE_CC_LINK_ARG",
+//             "-Wl,-z,max-page-size=16384,-soname,lib$libname.so"
+//         )
+//         spec.environment(
+//             "RUST_ANDROID_GRADLE_LINKER_WRAPPER_PY",
+//             "$projectDir/src/main/rust/linker-wrapper.py"
+//         )
+//         spec.environment(
+//             "RUST_ANDROID_GRADLE_TARGET",
+//             "target/${toolchain.target}/$cargoProfile/lib$libname.so"
+//         )
+//         val abi = abiFromTarget(toolchain.target)
+//         spec.environment("ANDROID_NDK_HOME", android.ndkDirectory.absolutePath)
+//         spec.environment("ANDROID_ABI", abi)
+//         spec.environment("ANDROID_PLATFORM", "android-$minSdkVersion")
+//         spec.environment(
+//             "PICOQUIC_BUILD_DIR",
+//             "$projectDir/src/main/rust/slipstream-rust/.picoquic-build/$abi"
+//         )
+//         spec.environment("PICOQUIC_AUTO_BUILD", "1")
+//         spec.environment("BUILD_TYPE", if (cargoProfile == "release") "Release" else "Debug")
+// 
+//         // Add OpenSSL paths for picoquic build and openssl-sys
+//         val opensslAbiDir = opensslBaseDir.resolve(abi)
+//         spec.environment("OPENSSL_DIR", opensslAbiDir.absolutePath)
+//         spec.environment("OPENSSL_LIB_DIR", opensslAbiDir.resolve("lib").absolutePath)
+//         spec.environment("OPENSSL_INCLUDE_DIR", opensslAbiDir.resolve("include").absolutePath)
+//         // For picoquic build script
+//         spec.environment("OPENSSL_ROOT_DIR", opensslAbiDir.absolutePath)
+//         spec.environment("OPENSSL_CRYPTO_LIBRARY", opensslAbiDir.resolve("lib/libcrypto.a").absolutePath)
+//         spec.environment("OPENSSL_SSL_LIBRARY", opensslAbiDir.resolve("lib/libssl.a").absolutePath)
+//         spec.environment("OPENSSL_USE_STATIC_LIBS", "1")
+// 
+//         // Pass config encryption key to Rust build.rs for obfuscation
+//         spec.environment("CONFIG_ENCRYPTION_KEY", configEncryptionKey)
+// 
+//         // Remap the build-machine home directory out of Rust panic strings.
+//         // CARGO_ENCODED_RUSTFLAGS is appended to rustflags in .cargo/config.toml
+//         // so the link-arg flags there are preserved.
+//         val homeDir = System.getProperty("user.home")
+//         spec.environment("CARGO_ENCODED_RUSTFLAGS", "--remap-path-prefix=${homeDir}=~")
+// 
+//         val toolchainPrebuilt = android.ndkDirectory
+//             .resolve("toolchains/llvm/prebuilt")
+//             .listFiles()
+//             ?.firstOrNull { it.isDirectory }
+//         val toolchainBin = toolchainPrebuilt?.resolve("bin")
+//         if (toolchainBin != null) {
+//             spec.environment("AR", toolchainBin.resolve("llvm-ar").absolutePath)
+//             spec.environment("RANLIB", toolchainBin.resolve("llvm-ranlib").absolutePath)
+//         }
+//     }
+// }
+// 
 // Make cargo build tasks depend on OpenSSL verification
-tasks.whenTaskAdded {
-    when (name) {
-        "cargoBuildArm", "cargoBuildArm64", "cargoBuildX86_64" -> {
-            dependsOn("verifyOpenSsl")
-        }
-        "mergeFullDebugJniLibFolders", "mergeFullReleaseJniLibFolders",
-        "mergeLiteDebugJniLibFolders", "mergeLiteReleaseJniLibFolders" -> {
-            dependsOn("cargoBuild")
-            // Track Rust JNI output without adding a second source set (avoids duplicate resources).
-            inputs.dir(layout.buildDirectory.dir("rustJniLibs/android"))
-        }
-    }
-}
-
-tasks.register<Exec>("cargoClean") {
-    executable("$cargoBin/cargo")
-    args("clean")
-    workingDir("$projectDir/${cargo.module}")
-}
-tasks.named("clean") {
-    dependsOn("cargoClean")
-}
+// // tasks.whenTaskAdded {
+// //     when (name) {
+// //         "cargoBuildArm", "cargoBuildArm64", "cargoBuildX86_64" -> {
+// //             dependsOn("verifyOpenSsl")
+// //         }
+// //         "mergeFullDebugJniLibFolders", "mergeFullReleaseJniLibFolders",
+// //         "mergeLiteDebugJniLibFolders", "mergeLiteReleaseJniLibFolders" -> {
+// //             dependsOn("cargoBuild")
+// //             // Track Rust JNI output without adding a second source set (avoids duplicate resources).
+// //             inputs.dir(layout.buildDirectory.dir("rustJniLibs/android"))
+// //         }
+// //     }
+// // }
+// // 
+// // tasks.register<Exec>("cargoClean") {
+//     executable("$cargoBin/cargo")
+//     args("clean")
+//     workingDir("$projectDir/${cargo.module}")
+// }
+// tasks.named("clean") {
+//     dependsOn("cargoClean")
+// }
 
 dependencies {
     // Go libraries — flavor-specific AARs built via: cd gomobile-build && make build
