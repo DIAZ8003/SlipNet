@@ -57,7 +57,7 @@ object VaydnsBridge {
         Log.i(TAG, "  Public Key: ${publicKey.take(16)}...")
         Log.i(TAG, "  Listen: $listenHost:$listenPort")
         Log.i(TAG, "  DNSTT Compat: $dnsttCompat")
-        Log.i(TAG, "  Record Type: $recordType")
+        Log.i(TAG, "  Using secure transport")
         Log.i(TAG, "  Max QNAME Len: $maxQnameLen")
         Log.i(TAG, "  RPS Limit: ${if (rps > 0) rps.toString() else "unlimited"}")
         Log.i(TAG, "  Idle Timeout: ${if (idleTimeout > 0) "${idleTimeout}s" else "default"}")

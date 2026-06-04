@@ -481,7 +481,7 @@ class VpnRepositoryImpl @Inject constructor(
                 recordType = profile.vaydnsRecordType,
                 authoritative = false,  // VayDNS has no authoritative mode
             )
-            Log.i(TAG, "[Auto] VayDNS probed: qname=${r.maxQnameLen} rps=${r.rpsLimit} probed=${r.probed} rec=${profile.vaydnsRecordType}")
+            Log.i(TAG, "[Auto] VayDNS probed: connection established")
             tunedQname = r.maxQnameLen
             tunedRps = r.rpsLimit
         }

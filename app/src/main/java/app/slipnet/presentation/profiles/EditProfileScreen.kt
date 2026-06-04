@@ -737,38 +737,38 @@ fun EditProfileScreen(
                             // VayDNS settings (locked profiles)
                             if (uiState.isVaydnsBased) {
                                 HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp))
-
-                                // Response Record Type selector
-                                Text(
-                                    text = "Response Record Type",
-                                    style = MaterialTheme.typography.titleMedium,
-                                    modifier = Modifier.padding(top = 8.dp)
-                                )
-                                Text(
-                                    text = "Must match the server configuration. Try CNAME or A if TXT is blocked.",
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    modifier = Modifier.padding(bottom = 4.dp)
-                                )
-                                Row(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .horizontalScroll(rememberScrollState()),
-                                    horizontalArrangement = Arrangement.spacedBy(6.dp)
-                                ) {
-                                    listOf("txt", "cname", "a", "aaaa", "mx", "ns", "srv", "null", "caa").forEach { type ->
-                                        if (uiState.vaydnsRecordType == type) {
-                                            Button(onClick = { }) {
-                                                Text(type.uppercase())
-                                            }
-                                        } else {
-                                            OutlinedButton(onClick = { viewModel.updateVaydnsRecordType(type) }) {
-                                                Text(type.uppercase())
-                                            }
-                                        }
-                                    }
-                                }
-
+// // 
+// //                                 // Response Record Type selector
+// //                                 Text(
+// //                                     text = "Response Record Type",
+// //                                     style = MaterialTheme.typography.titleMedium,
+// //                                     modifier = Modifier.padding(top = 8.dp)
+// //                                 )
+// //                                 Text(
+// //                                     text = "Must match the server configuration. Try CNAME or A if TXT is blocked.",
+// //                                     style = MaterialTheme.typography.bodySmall,
+// //                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
+// //                                     modifier = Modifier.padding(bottom = 4.dp)
+// //                                 )
+// //                                 Row(
+// //                                     modifier = Modifier
+// //                                         .fillMaxWidth()
+// //                                         .horizontalScroll(rememberScrollState()),
+// //                                     horizontalArrangement = Arrangement.spacedBy(6.dp)
+// //                                 ) {
+// //                                     listOf("txt", "cname", "a", "aaaa", "mx", "ns", "srv", "null", "caa").forEach { type ->
+// //                                         if (uiState.vaydnsRecordType == type) {
+// //                                             Button(onClick = { }) {
+// //                                                 Text(type.uppercase())
+// //                                             }
+// //                                         } else {
+// //                                             OutlinedButton(onClick = { viewModel.updateVaydnsRecordType(type) }) {
+// //                                                 Text(type.uppercase())
+// //                                             }
+// //                                         }
+// //                                     }
+// //                                 }
+// // 
                                 // Auto toggle (locked, VayDNS) — sits below Record Type.
                                 Row(
                                     modifier = Modifier
@@ -1872,38 +1872,38 @@ fun EditProfileScreen(
                     }
                 }
 
-                // VayDNS-specific settings
-                if (uiState.isVaydnsBased) {
-                    // Response Record Type selector
-                    Text(
-                        text = "Response Record Type",
-                        style = MaterialTheme.typography.titleMedium,
-                        modifier = Modifier.padding(top = 8.dp)
-                    )
-                    Text(
-                        text = "Must match the server configuration. Try CNAME or A if TXT is blocked.",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.padding(bottom = 4.dp)
-                    )
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .horizontalScroll(rememberScrollState()),
-                        horizontalArrangement = Arrangement.spacedBy(6.dp)
-                    ) {
-                        listOf("txt", "cname", "a", "aaaa", "mx", "ns", "srv", "null", "caa").forEach { type ->
-                            if (uiState.vaydnsRecordType == type) {
-                                Button(onClick = { }) {
-                                    Text(type.uppercase())
-                                }
-                            } else {
-                                OutlinedButton(onClick = { viewModel.updateVaydnsRecordType(type) }) {
-                                    Text(type.uppercase())
-                                }
-                            }
-                        }
-                    }
+// //                 // VayDNS-specific settings
+// //                 if (uiState.isVaydnsBased) {
+// //                     // Response Record Type selector
+// //                     Text(
+// //                         text = "Response Record Type",
+// //                         style = MaterialTheme.typography.titleMedium,
+// //                         modifier = Modifier.padding(top = 8.dp)
+// //                     )
+// //                     Text(
+// //                         text = "Must match the server configuration. Try CNAME or A if TXT is blocked.",
+// //                         style = MaterialTheme.typography.bodySmall,
+// //                         color = MaterialTheme.colorScheme.onSurfaceVariant,
+// //                         modifier = Modifier.padding(bottom = 4.dp)
+// //                     )
+// //                     Row(
+// //                         modifier = Modifier
+// //                             .fillMaxWidth()
+// //                             .horizontalScroll(rememberScrollState()),
+// //                         horizontalArrangement = Arrangement.spacedBy(6.dp)
+// //                     ) {
+// //                         listOf("txt", "cname", "a", "aaaa", "mx", "ns", "srv", "null", "caa").forEach { type ->
+// //                             if (uiState.vaydnsRecordType == type) {
+// //                                 Button(onClick = { }) {
+// //                                     Text(type.uppercase())
+// //                                 }
+// //                             } else {
+// //                                 OutlinedButton(onClick = { viewModel.updateVaydnsRecordType(type) }) {
+// //                                     Text(type.uppercase())
+// //                                 }
+// //                             }
+// //                         }
+// //                     }
                 }
 
                 // Auto-tune DNS query parameters (DNSTT/NoizDNS/VayDNS).
