@@ -28,8 +28,24 @@ jobs:
 
       - name: Obfuscate
         run: |
-          find SlipNet-mod -type f -name "*.smali" -exec sed -i 's/Response Record Type/Connection Mode/g' {} +
-          find SlipNet-mod -type f -name "*.xml" -exec sed -i 's/Response Record Type/Connection Mode/g' {} +
+          # Cambiar "Response Record Type" por "Connection Mode"
+          find SlipNet-mod -type f \( -name "*.smali" -o -name "*.xml" \) -exec sed -i 's/Response Record Type/Connection Mode/g' {} +
+          
+          # Reemplazar nombres de tipos de registro por alias numéricos NO secuenciales
+          # Orden original en la UI: txt, cname, a, aaaa, mx, ns, srv, null, caa
+          # Nuevo mapeo (posición -> alias):
+          find SlipNet-mod -type f \( -name "*.smali" -o -name "*.xml" \) -exec sed -i 's/"txt"/"Método 7"/g' {} +
+          find SlipNet-mod -type f \( -name "*.smali" -o -name "*.xml" \) -exec sed -i 's/"cname"/"Método 2"/g' {} +
+          find SlipNet-mod -type f \( -name "*.smali" -o -name "*.xml" \) -exec sed -i 's/"a"/"Método 9"/g' {} +
+          find SlipNet-mod -type f \( -name "*.smali" -o -name "*.xml" \) -exec sed -i 's/"aaaa"/"Método 1"/g' {} +
+          find SlipNet-mod -type f \( -name "*.smali" -o -name "*.xml" \) -exec sed -i 's/"mx"/"Método 5"/g' {} +
+          find SlipNet-mod -type f \( -name "*.smali" -o -name "*.xml" \) -exec sed -i 's/"ns"/"Método 8"/g' {} +
+          find SlipNet-mod -type f \( -name "*.smali" -o -name "*.xml" \) -exec sed -i 's/"srv"/"Método 3"/g' {} +
+          find SlipNet-mod -type f \( -name "*.smali" -o -name "*.xml" \) -exec sed -i 's/"null"/"Método 4"/g' {} +
+          find SlipNet-mod -type f \( -name "*.smali" -o -name "*.xml" \) -exec sed -i 's/"caa"/"Método 6"/g' {} +
+          
+          # Cambiar nombre de la app y eliminar URLs de GitHub
+          find SlipNet-mod -type f \( -name "*.smali" -o -name "*.xml" \) -exec sed -i 's/SlipNet/Prometheo/g' {} +
           sed -i 's/SlipNet Lite/Prometheo/g' SlipNet-mod/res/values/strings.xml
           find SlipNet-mod -type f \( -name "*.smali" -o -name "*.xml" \) -exec sed -i 's|https\?://github\.com/[^ "]*|https://example.com|g' {} +
 
@@ -38,15 +54,12 @@ jobs:
 
       - name: Sign APK
         run: |
-          # Generar un keystore de depuración
           keytool -genkeypair -v -keystore debug.keystore -alias debug -keyalg RSA -keysize 2048 -validity 10000 \
             -storepass android -keypass android \
             -dname "CN=Prometheo Debug, OU=Dev, O=Prometheo, L=City, ST=State, C=US"
-          # Firmar la APK
           jarsigner -verbose -sigalg SHA256withRSA -digestalg SHA-256 \
             -keystore debug.keystore -storepass android -keypass android \
             SlipNet-Prometheo-unsigned.apk debug
-          # Renombrar para que sea más claro
           mv SlipNet-Prometheo-unsigned.apk SlipNet-Prometheo-signed.apk
 
       - name: Upload Signed APK
