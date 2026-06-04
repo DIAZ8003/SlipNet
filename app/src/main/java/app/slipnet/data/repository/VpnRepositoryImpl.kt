@@ -24,7 +24,7 @@ import app.slipnet.tunnel.DnsttSocksBridge
 import app.slipnet.tunnel.SlipstreamSocksBridge
 import app.slipnet.tunnel.NaiveBridge
 import app.slipnet.tunnel.NaiveSocksBridge
-import app.slipnet.tunnel.SnowflakeBridge
+// import app.slipnet.tunnel.SnowflakeBridge
 import app.slipnet.tunnel.Socks5ProxyBridge
 import app.slipnet.tunnel.SshTunnelBridge
 import app.slipnet.tunnel.TorSocksBridge
@@ -375,72 +375,72 @@ class VpnRepositoryImpl @Inject constructor(
     }
 
     /**
-     * Start the NoizDNS SOCKS5 proxy. Same as DNSTT but with NoizMode enabled
-     * for DPI evasion (hex encoding, shorter labels, record type mixing, jitter,
-     * cover traffic).
-     */
-    suspend fun startNoizdnsProxy(
-        profile: ServerProfile,
-        portOverride: Int? = null,
-        hostOverride: String? = null,
-        socksProxyAddr: String? = null,
-        socksProxyUser: String? = null,
-        socksProxyPass: String? = null,
-        resolverOverride: List<DnsResolver>? = null
-    ): Result<Unit> = withContext(Dispatchers.IO) {
-        connectedProfile = profile
-
-        val poolResult = applyDnsPoolIfEnabled(profile, resolverOverride)
-        if (poolResult.isFailure) {
-            val msg = poolResult.exceptionOrNull()?.message ?: "DNS pool scan failed"
-            Log.e(TAG, "Pool scan failed: $msg")
-            connectedProfile = null
-            return@withContext Result.failure(Exception(msg))
-        }
-        val effectiveOverride = poolResult.getOrNull() ?: resolverOverride
-
-        // Resolve domain names to IPs — Go on Android cannot resolve hostnames.
-        val dnsServer = formatDnsServerAddress(profile, effectiveOverride)
-
-        val proxyPort = portOverride ?: preferencesDataStore.proxyListenPort.first()
-        val proxyHost = hostOverride ?: preferencesDataStore.proxyListenAddress.first()
-
-        val tunedNoizPayload = if (profile.dnsAutoTune) {
-            val r = app.slipnet.tunnel.DnsResolverProber.probe(
-                resolvers = dnsServer,
-                tunnelDomain = profile.domain,
-                recordType = "txt",
-                authoritative = profile.dnsttAuthoritative,
-            )
-            Log.i(TAG, "[Auto] NoizDNS probed: qname=${r.maxQnameLen} payload=${r.maxPayload} probed=${r.probed}")
-            r.maxPayload
-        } else profile.dnsPayloadSize
-
-        val result = DnsttBridge.startClient(
-            dnsServer = dnsServer,
-            tunnelDomain = profile.domain,
-            publicKey = profile.dnsttPublicKey,
-            listenPort = proxyPort,
-            listenHost = proxyHost,
-            authoritativeMode = profile.dnsttAuthoritative,
-            noizMode = true,
-            stealthMode = profile.noizdnsStealth,
-            maxPayload = tunedNoizPayload,
-            socksProxyAddr = socksProxyAddr,
-            socksProxyUser = socksProxyUser,
-            socksProxyPass = socksProxyPass,
-            resolverMode = profile.resolverMode.value,
-            rrSpreadCount = profile.rrSpreadCount
-        )
-
-        if (result.isSuccess) {
-            Log.i(TAG, "NoizDNS SOCKS5 proxy started successfully")
-            currentTunnelType = TunnelType.NOIZDNS
-            Result.success(Unit)
-        } else {
-            val error = result.exceptionOrNull()?.message ?: "Failed to start NoizDNS proxy"
-            connectedProfile = null
-            Log.e(TAG, "Failed to start NoizDNS proxy: $error")
+//      * Start the NoizDNS SOCKS5 proxy. Same as DNSTT but with NoizMode enabled
+//      * for DPI evasion (hex encoding, shorter labels, record type mixing, jitter,
+//      * cover traffic).
+//      */
+//     suspend fun startNoizdnsProxy(
+//         profile: ServerProfile,
+//         portOverride: Int? = null,
+//         hostOverride: String? = null,
+//         socksProxyAddr: String? = null,
+//         socksProxyUser: String? = null,
+//         socksProxyPass: String? = null,
+//         resolverOverride: List<DnsResolver>? = null
+//     ): Result<Unit> = withContext(Dispatchers.IO) {
+//         connectedProfile = profile
+// 
+//         val poolResult = applyDnsPoolIfEnabled(profile, resolverOverride)
+//         if (poolResult.isFailure) {
+//             val msg = poolResult.exceptionOrNull()?.message ?: "DNS pool scan failed"
+//             Log.e(TAG, "Pool scan failed: $msg")
+//             connectedProfile = null
+//             return@withContext Result.failure(Exception(msg))
+//         }
+//         val effectiveOverride = poolResult.getOrNull() ?: resolverOverride
+// 
+//         // Resolve domain names to IPs — Go on Android cannot resolve hostnames.
+//         val dnsServer = formatDnsServerAddress(profile, effectiveOverride)
+// 
+//         val proxyPort = portOverride ?: preferencesDataStore.proxyListenPort.first()
+//         val proxyHost = hostOverride ?: preferencesDataStore.proxyListenAddress.first()
+// 
+//         val tunedNoizPayload = if (profile.dnsAutoTune) {
+//             val r = app.slipnet.tunnel.DnsResolverProber.probe(
+//                 resolvers = dnsServer,
+//                 tunnelDomain = profile.domain,
+//                 recordType = "txt",
+//                 authoritative = profile.dnsttAuthoritative,
+//             )
+//             Log.i(TAG, "[Auto] NoizDNS probed: qname=${r.maxQnameLen} payload=${r.maxPayload} probed=${r.probed}")
+//             r.maxPayload
+//         } else profile.dnsPayloadSize
+// 
+//         val result = DnsttBridge.startClient(
+//             dnsServer = dnsServer,
+//             tunnelDomain = profile.domain,
+//             publicKey = profile.dnsttPublicKey,
+//             listenPort = proxyPort,
+//             listenHost = proxyHost,
+//             authoritativeMode = profile.dnsttAuthoritative,
+//             noizMode = true,
+//             stealthMode = profile.noizdnsStealth,
+//             maxPayload = tunedNoizPayload,
+//             socksProxyAddr = socksProxyAddr,
+//             socksProxyUser = socksProxyUser,
+//             socksProxyPass = socksProxyPass,
+//             resolverMode = profile.resolverMode.value,
+//             rrSpreadCount = profile.rrSpreadCount
+//         )
+// 
+//         if (result.isSuccess) {
+//             Log.i(TAG, "NoizDNS SOCKS5 proxy started successfully")
+//             currentTunnelType = TunnelType.NOIZDNS
+//             Result.success(Unit)
+//         } else {
+//             val error = result.exceptionOrNull()?.message ?: "Failed to start NoizDNS proxy"
+//             connectedProfile = null
+//             Log.e(TAG, "Failed to start NoizDNS proxy: $error")
             Result.failure(Exception(error))
         }
     }
@@ -841,55 +841,55 @@ class VpnRepositoryImpl @Inject constructor(
     }
 
     /**
-     * Start the Snowflake proxy stack: Snowflake PT + Tor + TorSocksBridge.
-     * Call this AFTER establishing the VPN interface.
-     *
-     * Port allocation:
-     * - bridgePort (proxyPort): TorSocksBridge (what hev-socks5-tunnel connects to)
-     * - torSocksPort (proxyPort+1): Tor SOCKS5 (what bridge chains CONNECT to)
-     * - snowflakePtPort (proxyPort+2): Snowflake PT SOCKS5 (what Tor connects through)
-     */
-    suspend fun startSnowflakeProxy(
-        profile: ServerProfile,
-        snowflakePtPort: Int,
-        torSocksPort: Int,
-        bridgePort: Int,
-        upstreamSocksAddr: java.net.InetSocketAddress? = null
-    ): Result<Unit> = withContext(Dispatchers.IO) {
-        connectedProfile = profile
-        val proxyHost = preferencesDataStore.proxyListenAddress.first()
-
-        // Step 1: Start Snowflake PT + Tor (or other PT based on bridge lines)
-        val sfResult = SnowflakeBridge.startClient(
-            context = context,
-            snowflakePort = snowflakePtPort,
-            torSocksPort = torSocksPort,
-            listenHost = proxyHost,
-            bridgeLines = profile.torBridgeLines,
-            upstreamSocksAddr = upstreamSocksAddr
-        )
-
-        if (sfResult.isFailure) {
-            connectedProfile = null
-            Log.e(TAG, "Failed to start Snowflake + Tor: ${sfResult.exceptionOrNull()?.message}")
-            return@withContext Result.failure(sfResult.exceptionOrNull() ?: Exception("Failed to start Snowflake"))
-        }
-
-        // Step 2: Start TorSocksBridge
-        // Tor SOCKS5 is always local — use 127.0.0.1 for upstream, proxyHost for listen
-        val localAuthUser = if (preferencesDataStore.proxyAuthEnabled.first()) preferencesDataStore.proxyAuthUsername.first().ifEmpty { null } else null
-        val localAuthPass = if (preferencesDataStore.proxyAuthEnabled.first()) preferencesDataStore.proxyAuthPassword.first().ifEmpty { null } else null
-        val bridgeResult = TorSocksBridge.start(
-            torSocksPort = torSocksPort,
-            torHost = "127.0.0.1",
-            listenPort = bridgePort,
-            listenHost = proxyHost,
-            localAuthUsername = localAuthUser,
-            localAuthPassword = localAuthPass
-        )
-
-        if (bridgeResult.isFailure) {
-            SnowflakeBridge.stopClient()
+//      * Start the Snowflake proxy stack: Snowflake PT + Tor + TorSocksBridge.
+//      * Call this AFTER establishing the VPN interface.
+//      *
+//      * Port allocation:
+//      * - bridgePort (proxyPort): TorSocksBridge (what hev-socks5-tunnel connects to)
+//      * - torSocksPort (proxyPort+1): Tor SOCKS5 (what bridge chains CONNECT to)
+//      * - snowflakePtPort (proxyPort+2): Snowflake PT SOCKS5 (what Tor connects through)
+//      */
+//     suspend fun startSnowflakeProxy(
+//         profile: ServerProfile,
+//         snowflakePtPort: Int,
+//         torSocksPort: Int,
+//         bridgePort: Int,
+//         upstreamSocksAddr: java.net.InetSocketAddress? = null
+//     ): Result<Unit> = withContext(Dispatchers.IO) {
+//         connectedProfile = profile
+//         val proxyHost = preferencesDataStore.proxyListenAddress.first()
+// 
+//         // Step 1: Start Snowflake PT + Tor (or other PT based on bridge lines)
+//         val sfResult = SnowflakeBridge.startClient(
+//             context = context,
+//             snowflakePort = snowflakePtPort,
+//             torSocksPort = torSocksPort,
+//             listenHost = proxyHost,
+//             bridgeLines = profile.torBridgeLines,
+//             upstreamSocksAddr = upstreamSocksAddr
+//         )
+// 
+//         if (sfResult.isFailure) {
+//             connectedProfile = null
+//             Log.e(TAG, "Failed to start Snowflake + Tor: ${sfResult.exceptionOrNull()?.message}")
+//             return@withContext Result.failure(sfResult.exceptionOrNull() ?: Exception("Failed to start Snowflake"))
+//         }
+// 
+//         // Step 2: Start TorSocksBridge
+//         // Tor SOCKS5 is always local — use 127.0.0.1 for upstream, proxyHost for listen
+//         val localAuthUser = if (preferencesDataStore.proxyAuthEnabled.first()) preferencesDataStore.proxyAuthUsername.first().ifEmpty { null } else null
+//         val localAuthPass = if (preferencesDataStore.proxyAuthEnabled.first()) preferencesDataStore.proxyAuthPassword.first().ifEmpty { null } else null
+//         val bridgeResult = TorSocksBridge.start(
+//             torSocksPort = torSocksPort,
+//             torHost = "127.0.0.1",
+//             listenPort = bridgePort,
+//             listenHost = proxyHost,
+//             localAuthUsername = localAuthUser,
+//             localAuthPassword = localAuthPass
+//         )
+// 
+//         if (bridgeResult.isFailure) {
+//             SnowflakeBridge.stopClient()
             connectedProfile = null
             Log.e(TAG, "Failed to start TorSocksBridge: ${bridgeResult.exceptionOrNull()?.message}")
             return@withContext Result.failure(bridgeResult.exceptionOrNull() ?: Exception("Failed to start TorSocksBridge"))
@@ -984,27 +984,27 @@ class VpnRepositoryImpl @Inject constructor(
                 DnsDoHProxy.stop()
             }
             TunnelType.NOIZDNS -> {
-                Log.d(TAG, "Stopping NoizDNS proxy")
-                DnsttBridge.stopClient()
-                DnsDoHProxy.stop()
-            }
-            TunnelType.VAYDNS -> {
-                Log.d(TAG, "Stopping VayDNS proxy")
-                VaydnsBridge.stopClient()
-                DnsDoHProxy.stop()
-            }
-            TunnelType.SSH -> {
-                Log.d(TAG, "Stopping SSH proxy")
-                SshTunnelBridge.stop()
-            }
-            TunnelType.DNSTT_SSH -> {
-                Log.d(TAG, "Stopping DNSTT+SSH: SSH first, then DNSTT")
-                SshTunnelBridge.stop()
-                DnsttBridge.stopClient()
-                DnsDoHProxy.stop()
-            }
-            TunnelType.NOIZDNS_SSH -> {
-                Log.d(TAG, "Stopping NoizDNS+SSH: SSH first, then NoizDNS")
+//                 Log.d(TAG, "Stopping NoizDNS proxy")
+//                 DnsttBridge.stopClient()
+//                 DnsDoHProxy.stop()
+//             }
+//             TunnelType.VAYDNS -> {
+//                 Log.d(TAG, "Stopping VayDNS proxy")
+//                 VaydnsBridge.stopClient()
+//                 DnsDoHProxy.stop()
+//             }
+//             TunnelType.SSH -> {
+//                 Log.d(TAG, "Stopping SSH proxy")
+//                 SshTunnelBridge.stop()
+//             }
+//             TunnelType.DNSTT_SSH -> {
+//                 Log.d(TAG, "Stopping DNSTT+SSH: SSH first, then DNSTT")
+//                 SshTunnelBridge.stop()
+//                 DnsttBridge.stopClient()
+//                 DnsDoHProxy.stop()
+//             }
+//             TunnelType.NOIZDNS_SSH -> {
+//                 Log.d(TAG, "Stopping NoizDNS+SSH: SSH first, then NoizDNS")
                 SshTunnelBridge.stop()
                 DnsttBridge.stopClient()
                 DnsDoHProxy.stop()
@@ -1025,39 +1025,39 @@ class VpnRepositoryImpl @Inject constructor(
                 DohBridge.stop()
             }
             TunnelType.SNOWFLAKE -> {
-                Log.d(TAG, "Stopping Snowflake: TorSocksBridge first, then Snowflake+Tor")
-                TorSocksBridge.stop()
-                SnowflakeBridge.stopClient()
-            }
-            TunnelType.NAIVE_SSH -> {
-                Log.d(TAG, "Stopping NaiveProxy+SSH: SSH first, then NaiveProxy")
-                SshTunnelBridge.stop()
-                NaiveBridge.stop()
-            }
-            TunnelType.NAIVE -> {
-                Log.d(TAG, "Stopping standalone NaiveProxy: bridge first, then NaiveProxy")
-                NaiveSocksBridge.stop()
-                NaiveBridge.stop()
-            }
-            TunnelType.SOCKS5 -> {
-                Log.d(TAG, "Stopping SOCKS5 proxy bridge")
-                Socks5ProxyBridge.stop()
-            }
-            TunnelType.VLESS -> {
-                Log.d(TAG, "Stopping VLESS proxy bridge")
-                VlessBridge.stop()
-            }
-            null -> {
-                // Try to stop all just in case
-                Log.d(TAG, "No tunnel type set, stopping all proxies")
-                SlipstreamSocksBridge.stop()
-                SlipstreamBridge.stopClient()
-                DnsttBridge.stopClient()
-                VaydnsBridge.stopClient()
-                SshTunnelBridge.stop()
-                DnsDoHProxy.stop()
-                TorSocksBridge.stop()
-                SnowflakeBridge.stopClient()
+//                 Log.d(TAG, "Stopping Snowflake: TorSocksBridge first, then Snowflake+Tor")
+//                 TorSocksBridge.stop()
+//                 SnowflakeBridge.stopClient()
+//             }
+//             TunnelType.NAIVE_SSH -> {
+//                 Log.d(TAG, "Stopping NaiveProxy+SSH: SSH first, then NaiveProxy")
+//                 SshTunnelBridge.stop()
+//                 NaiveBridge.stop()
+//             }
+//             TunnelType.NAIVE -> {
+//                 Log.d(TAG, "Stopping standalone NaiveProxy: bridge first, then NaiveProxy")
+//                 NaiveSocksBridge.stop()
+//                 NaiveBridge.stop()
+//             }
+//             TunnelType.SOCKS5 -> {
+//                 Log.d(TAG, "Stopping SOCKS5 proxy bridge")
+//                 Socks5ProxyBridge.stop()
+//             }
+//             TunnelType.VLESS -> {
+//                 Log.d(TAG, "Stopping VLESS proxy bridge")
+//                 VlessBridge.stop()
+//             }
+//             null -> {
+//                 // Try to stop all just in case
+//                 Log.d(TAG, "No tunnel type set, stopping all proxies")
+//                 SlipstreamSocksBridge.stop()
+//                 SlipstreamBridge.stopClient()
+//                 DnsttBridge.stopClient()
+//                 VaydnsBridge.stopClient()
+//                 SshTunnelBridge.stop()
+//                 DnsDoHProxy.stop()
+//                 TorSocksBridge.stop()
+//                 SnowflakeBridge.stopClient()
                 NaiveSocksBridge.stop()
                 NaiveBridge.stop()
             }
@@ -1277,10 +1277,10 @@ class VpnRepositoryImpl @Inject constructor(
                 received = DohBridge.getTunnelRxBytes()
             }
             else -> {
-                // Snowflake falls through here. It's Go-backed and gomobile
-                // doesn't expose byte counters, so in VPN mode we read
-                // TUN-level stats via HevSocks5Tunnel; in proxy-only mode
-                // Snowflake currently shows 0 bytes until Go-side counter
+//                 // Snowflake falls through here. It's Go-backed and gomobile
+//                 // doesn't expose byte counters, so in VPN mode we read
+//                 // TUN-level stats via HevSocks5Tunnel; in proxy-only mode
+//                 // Snowflake currently shows 0 bytes until Go-side counter
                 // exposure is added.
                 val stats = HevSocks5Tunnel.getStats() ?: return
                 sent = stats.txBytes

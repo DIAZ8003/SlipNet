@@ -1061,43 +1061,43 @@ class ResolverScannerRepositoryImpl @Inject constructor(
     }
 
     /**
-     * Test a single resolver using an ephemeral DNSTT/NoizDNS Go client.
-     * Creates its own DnsttClient on a unique port — safe for concurrent use.
-     * Does NOT touch the singleton DnsttBridge or DnsttSocksBridge.
-     */
-    private suspend fun testResolverDnsttIsolated(
-        resolverHost: String,
-        resolverPort: Int,
-        profile: ServerProfile,
-        testUrl: String,
-        timeoutMs: Long,
-        onPhaseUpdate: (String) -> Unit,
-        noizMode: Boolean = false,
-        fullVerification: Boolean = false
-    ): E2eTestResult = withContext(Dispatchers.IO) {
-        val totalStart = SystemClock.elapsedRealtime()
-        val tunnelName = if (noizMode) "NoizDNS" else "DNSTT"
-        val dnsttPort = findFreePort()
-        var client: mobile.DnsttClient? = null
-        try {
-            val result = withTimeoutOrNull(timeoutMs) {
-                // Phase 1: Start tunnel
-                onPhaseUpdate("Starting $tunnelName...")
-
-                val dnsServer = formatDnsServer(resolverHost, resolverPort, profile.dnsTransport)
-                    ?: return@withTimeoutOrNull E2eTestResult(
-                        errorMessage = "DoH transport uses URL, not per-resolver IP",
-                        phase = E2eTestPhase.TUNNEL_SETUP
-                    )
-
-                val listenAddr = "127.0.0.1:$dnsttPort"
-                val newClient = mobile.Mobile.newClient(dnsServer, profile.domain, profile.dnsttPublicKey, listenAddr)
-                newClient.setAuthoritativeMode(profile.dnsttAuthoritative)
-                if (profile.dnsPayloadSize > 0) {
-                    newClient.setMaxPayload(profile.dnsPayloadSize.toLong())
-                }
-                if (noizMode) {
-                    newClient.setNoizMode(true)
+//      * Test a single resolver using an ephemeral DNSTT/NoizDNS Go client.
+//      * Creates its own DnsttClient on a unique port — safe for concurrent use.
+//      * Does NOT touch the singleton DnsttBridge or DnsttSocksBridge.
+//      */
+//     private suspend fun testResolverDnsttIsolated(
+//         resolverHost: String,
+//         resolverPort: Int,
+//         profile: ServerProfile,
+//         testUrl: String,
+//         timeoutMs: Long,
+//         onPhaseUpdate: (String) -> Unit,
+//         noizMode: Boolean = false,
+//         fullVerification: Boolean = false
+//     ): E2eTestResult = withContext(Dispatchers.IO) {
+//         val totalStart = SystemClock.elapsedRealtime()
+//         val tunnelName = if (noizMode) "NoizDNS" else "DNSTT"
+//         val dnsttPort = findFreePort()
+//         var client: mobile.DnsttClient? = null
+//         try {
+//             val result = withTimeoutOrNull(timeoutMs) {
+//                 // Phase 1: Start tunnel
+//                 onPhaseUpdate("Starting $tunnelName...")
+// 
+//                 val dnsServer = formatDnsServer(resolverHost, resolverPort, profile.dnsTransport)
+//                     ?: return@withTimeoutOrNull E2eTestResult(
+//                         errorMessage = "DoH transport uses URL, not per-resolver IP",
+//                         phase = E2eTestPhase.TUNNEL_SETUP
+//                     )
+// 
+//                 val listenAddr = "127.0.0.1:$dnsttPort"
+//                 val newClient = mobile.Mobile.newClient(dnsServer, profile.domain, profile.dnsttPublicKey, listenAddr)
+//                 newClient.setAuthoritativeMode(profile.dnsttAuthoritative)
+//                 if (profile.dnsPayloadSize > 0) {
+//                     newClient.setMaxPayload(profile.dnsPayloadSize.toLong())
+//                 }
+//                 if (noizMode) {
+//                     newClient.setNoizMode(true)
                     newClient.setDeviceManufacturer(android.os.Build.MANUFACTURER)
                 }
                 client = newClient

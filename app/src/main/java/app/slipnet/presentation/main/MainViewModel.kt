@@ -27,7 +27,7 @@ import app.slipnet.domain.usecase.GetProfilesUseCase
 import app.slipnet.domain.usecase.SaveProfileUseCase
 import app.slipnet.domain.usecase.SetActiveProfileUseCase
 import app.slipnet.service.VpnConnectionManager
-import app.slipnet.tunnel.SnowflakeBridge
+// import app.slipnet.tunnel.SnowflakeBridge
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -192,19 +192,19 @@ class MainViewModel @Inject constructor(
         bootstrapPollingJob?.cancel()
         bootstrapPollingJob = viewModelScope.launch {
             while (true) {
-                val progress = SnowflakeBridge.torBootstrapProgress
-                _uiState.value = _uiState.value.copy(
-                    snowflakeBootstrapProgress = if (progress > 0) progress else -1
-                )
-                delay(500)
-            }
-        }
-    }
-
-    private fun stopBootstrapPolling() {
-        bootstrapPollingJob?.cancel()
-        bootstrapPollingJob = null
-        _uiState.value = _uiState.value.copy(snowflakeBootstrapProgress = -1)
+//                 val progress = SnowflakeBridge.torBootstrapProgress
+//                 _uiState.value = _uiState.value.copy(
+//                     snowflakeBootstrapProgress = if (progress > 0) progress else -1
+//                 )
+//                 delay(500)
+//             }
+//         }
+//     }
+// 
+//     private fun stopBootstrapPolling() {
+//         bootstrapPollingJob?.cancel()
+//         bootstrapPollingJob = null
+//         _uiState.value = _uiState.value.copy(snowflakeBootstrapProgress = -1)
     }
 
     private fun startTrafficPolling() {
