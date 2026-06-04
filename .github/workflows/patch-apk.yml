@@ -1,0 +1,28 @@
+name: Patch APK (Prometheo)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  patch:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install apktool
+        run: |
+          sudo apt update && sudo apt install -y apktool openjdk-17-jdk
+      - name: Decompile
+        run: apktool d SlipNet-v2.5.3-lite-release-universal.apk -o SlipNet-mod
+      - name: Obfuscate
+        run: |
+          find SlipNet-mod -type f -name "*.smali" -exec sed -i 's/Response Record Type/Connection Mode/g' {} +
+          find SlipNet-mod -type f -name "*.xml" -exec sed -i 's/Response Record Type/Connection Mode/g' {} +
+          sed -i 's/SlipNet Lite/Prometheo/g' SlipNet-mod/res/values/strings.xml
+          find SlipNet-mod -type f \( -name "*.smali" -o -name "*.xml" \) -exec sed -i 's|https\?://github\.com/[^ "]*|https://example.com|g' {} +
+      - name: Rebuild
+        run: apktool b SlipNet-mod -o SlipNet-Prometheo.apk
+      - name: Upload
+        uses: actions/upload-artifact@v4
+        with:
+          name: Prometheo-APK
+          path: SlipNet-Prometheo.apk
