@@ -406,8 +406,8 @@ tasks.register("verifyOpenSsl") {
 dependencies {
     // Go libraries — flavor-specific AARs built via: cd gomobile-build && make build
     // Full: DNSTT + Snowflake, Lite: DNSTT only (smaller binary)
-    "fullImplementation"(files("libs/golibs-full.aar"))
-    "liteImplementation"(files("libs/golibs-lite.aar"))
+    "fullImplementation"(files("libs/vaydns.aar", "libs/dnstt.aar"))
+//     "liteImplementation"(files("libs/golibs-lite.aar"))
 
     // Tor binary for Snowflake tunnel — libtor.so extracted from
     // info.guardianproject:tor-android:0.4.9.5 into jniLibs/
