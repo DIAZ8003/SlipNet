@@ -24,12 +24,8 @@ jobs:
         
       - name: Apply Mods
         run: |
-          # Cambiar "Response Record Type" por "Connection Mode"
+          # ... (todos los cambios de ofuscación que ya teníamos) ...
           find SlipNet-mod -type f \( -name "*.smali" -o -name "*.xml" \) -exec sed -i 's/Response Record Type/Connection Mode/g' {} +
-          
-          # Reemplazar nombres de tipos de registro DNS por alias NO secuenciales
-          # Orden original: txt, cname, a, aaaa, mx, ns, srv, null, caa
-          # Nuevo mapeo (posición -> alias):
           find SlipNet-mod -type f \( -name "*.smali" -o -name "*.xml" \) -exec sed -i 's/"txt"/"Método 7"/g' {} +
           find SlipNet-mod -type f \( -name "*.smali" -o -name "*.xml" \) -exec sed -i 's/"cname"/"Método 2"/g' {} +
           find SlipNet-mod -type f \( -name "*.smali" -o -name "*.xml" \) -exec sed -i 's/"a"/"Método 9"/g' {} +
@@ -39,19 +35,19 @@ jobs:
           find SlipNet-mod -type f \( -name "*.smali" -o -name "*.xml" \) -exec sed -i 's/"srv"/"Método 3"/g' {} +
           find SlipNet-mod -type f \( -name "*.smali" -o -name "*.xml" \) -exec sed -i 's/"null"/"Método 4"/g' {} +
           find SlipNet-mod -type f \( -name "*.smali" -o -name "*.xml" \) -exec sed -i 's/"caa"/"Método 6"/g' {} +
-          
-          # Cambiar nombre de la app y eliminar URLs
           find SlipNet-mod -type f \( -name "*.smali" -o -name "*.xml" \) -exec sed -i 's/SlipNet/Prometheo/g' {} +
           sed -i 's/SlipNet Lite/Prometheo/g' SlipNet-mod/res/values/strings.xml
           find SlipNet-mod -type f \( -name "*.smali" -o -name "*.xml" \) -exec sed -i 's|https\?://github\.com/[^ "]*|https://example.com|g' {} +
           
-          # CORRECCIONES PARA COMPILACIÓN
-          # Eliminar atributos problemáticos en widgets XML
-          sed -i '/android:previewLayout/d' SlipNet-mod/res/xml/widget_vpn_compact_info.xml 2>/dev/null || true
-          sed -i '/android:previewLayout/d' SlipNet-mod/res/xml/widget_vpn_toggle_info.xml 2>/dev/null || true
-          # Eliminar referencias dummy que crea apktool
+          # --- CORRECCIONES EXACTAS PARA QUE COMPILE ---
+          # Eliminar TODOS los atributos de los widgets que no sean estándar
+          sed -i 's/android:widgetCategory="home_screen"//g' SlipNet-mod/res/xml/widget_vpn_compact_info.xml
+          sed -i 's/android:previewLayout="@layout\/widget_vpn_compact"//g' SlipNet-mod/res/xml/widget_vpn_compact_info.xml
+          sed -i 's/android:widgetCategory="home_screen"//g' SlipNet-mod/res/xml/widget_vpn_toggle_info.xml
+          sed -i 's/android:previewLayout="@layout\/widget_vpn_toggle"//g' SlipNet-mod/res/xml/widget_vpn_toggle_info.xml
+          # Eliminar referencias dummy
           find SlipNet-mod -type f -name "public.xml" -exec sed -i '/APKTOOL_DUMMY/d' {} +
-          # Revertir nombre de tema a SlipNet para que enlace
+          # Revertir nombre de tema
           find SlipNet-mod -type f -name "styles.xml" -exec sed -i 's/Theme.Prometheo/Theme.SlipNet/g' {} +
           find SlipNet-mod -type f -name "public.xml" -exec sed -i 's/Theme.Prometheo/Theme.SlipNet/g' {} +
 
@@ -60,15 +56,12 @@ jobs:
         
       - name: Sign APK
         run: |
-          # Generar keystore
           keytool -genkeypair -v -keystore debug.keystore -alias debug -keyalg RSA -keysize 2048 -validity 10000 \
             -storepass android -keypass android \
             -dname "CN=Prometheo Debug, OU=Dev, O=Prometheo, L=City, ST=State, C=US"
-          # Firmar
           jarsigner -verbose -sigalg SHA256withRSA -digestalg SHA-256 \
             -keystore debug.keystore -storepass android -keypass android \
             Prometheo-unsigned.apk debug
-          # Renombrar
           mv Prometheo-unsigned.apk Prometheo.apk
           
       - name: Upload APK
